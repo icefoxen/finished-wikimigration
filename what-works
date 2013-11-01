@@ -1,0 +1,9 @@
+Copy mointogit & the contents of /etc/moin/ to /srv/www/alopex.li/moindata
+cd into /srv/www/alopex.li/moindata
+
+Say we have DEST=/home/icefox/tmp/wikimigration/dest or something
+We go into /home/icefox/tmp/wikimigration which has all these files in it, and do
+sudo ./moin2git --config-dir=/etc/moin --wiki-url=http://alopex.li/wiki | ( cd $DEST && git fast-import )
+
+Then from $DEST
+sudo ../moin2mdwn --config-dir=/etc/moin --wiki-url=http://alopex.li/wiki -r $DEST

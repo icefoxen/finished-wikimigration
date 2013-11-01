@@ -1,0 +1,53 @@
+MoinMoin to ikiwiki converter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Those scripts will attempt to convert your MoinMoin wiki into a Ikiwiki.
+
+Requirements
+============
+
+To use these scripts to convert a MoinMoin wiki to ikiwiki, you will
+need:
+
+ * Perl
+ * Python
+ * An installation of MoinMoin where Python can find it.
+ * Optionally, an authors file mapping MoinMoin users to how they should appear
+   in the Git repository.  Lines in an authors file should look like this:
+
+    MoinUserName=Full Name <email.address@example.org>
+
+Getting started
+===============
+
+Use those commands to convert the MoinMoin wiki to git:
+
+    git init /home/ikiwiki
+    cd /home/moinmoin/wiki/
+    moin2git | ( cd /home/ikiwiki.git && git fast-import )
+
+If the importer fails, you can try to import just that page again with:
+
+    moin2git -p PageName | ( cd /home/ikiwiki.git && git fast-import )
+
+The script has a detailed usage available under --help.
+
+The above will generate a full git repository with one text file per
+page, in MoinMoin markup format. To convert that to Ikiwiki-compatible Markdown, you need to run the conversion script:
+
+    cd /home/moinmoin/wiki
+    moin2mdwn -r /home/ikiwiki
+
+Similarly, if this fails you can retry only with one page with the -p option.
+
+Obviously, if you do not use the same options for selecting pages (-p,
+-D or -u) for both scripts, the second will fail.
+
+More information
+================
+
+The homepage of this project is:
+
+http://ikiwiki.info/tips/convert_MoinMoin_and_TWiki_to_ikiwiki
+
+That page documents better the features and limitation of this script.
