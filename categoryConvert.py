@@ -33,9 +33,11 @@ def main():
         # Find the category section and snip it off
         # because we have no rindex()
         rfContents = [x.strip() for x in reversed(fContents)]
-        separator = rfContents.index('----')
-        if separator != -1:
+        try:
+            separator = rfContents.index('----')
             fContents = fContents[:len(fContents) - separator - 1]
+        except ValueError:
+            pass
         with open(filename, 'w') as f:
             f.write("---\n")
             f.write("format: markdown\n")
