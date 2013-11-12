@@ -137,7 +137,7 @@ class MarkdownFormatter(text_html.Formatter):
                                 title = kw[titleattr]
                                 break
                 if title:
-                        return '![%s]()' % title
+                        return '![](%s)' % title
                 raise NotImplementedError("image: not sure what to do without a title??")
                 #return '[[!img]]'
 
@@ -159,7 +159,9 @@ class MarkdownFormatter(text_html.Formatter):
         def _text(self, text): return text
         def strong(self, on, **kw): return '*'
         def emphasis(self, on, **kw): return '**'
-        def underline(self, on, **kw): raise NotImplementedError("Underline")
+        def underline(self, on, **kw):
+                return ''
+                raise NotImplementedError("Underline")
         #        def underline(self, on, **kw): return ['<ins>', '</ins>'][not on]
         def highlight(self, on, **kw): raise NotImplementedError("highlight")
         #def highlight(self, on, **kw): return '***'
@@ -172,7 +174,7 @@ class MarkdownFormatter(text_html.Formatter):
                 return '~~~\n'
 
         # apparently, this is valid again in HTML5 and only deprecated (so okay) in HTML4
-        def small(self, on, **kw): return ['<small>', '</small>'][not on]
+        def small(self, on, **kw): return ''
 
         def big(self, on, **kw): return '****'
 
@@ -223,7 +225,7 @@ class MarkdownFormatter(text_html.Formatter):
         def definition_list(self, on, **kw): return ''
         def definition_term(self, on, compact=0, **kw): return ['', "\n"][not on]
         def definition_desc(self, on, **kw): return [": ", "\n\n"][not on]
-        def heading(self, on, depth, **kw):  return [("#" * depth) + " ", "\n"][not on]
+        def heading(self, on, depth, **kw):  return [("\n#" * depth) + " ", "\n"][not on]
 
         # Tables #############################################################
 
@@ -238,9 +240,11 @@ class MarkdownFormatter(text_html.Formatter):
                 if on:
                         self._first_row = True
                         self._sepstring = "|"
+                        return "\n~~~ {.mtable}\n"
                         return "Starting table\n\n"
                         return ''
                 else:
+                        return "~~~\n"
                         return "Ending table\n\n"
                         return ''
                 
@@ -248,6 +252,7 @@ class MarkdownFormatter(text_html.Formatter):
                 if on:
                         return "| "
                 else:
+                        return "\n"
                         if self._first_row:
                                 self._sepstring += '\n'
                                 self._first_row = False
@@ -306,6 +311,7 @@ class MarkdownFormatter(text_html.Formatter):
                 else:
                         args_list = []
                 if name.lower() == 'newpage':
+                        return ''
                         extra = []
                         if len(args_list) > 1:
                                 extra.append('postformtext="%s"' % args_list[1])
@@ -317,9 +323,11 @@ class MarkdownFormatter(text_html.Formatter):
                                         self.templates_patterns[args_list[0]].append(args_list[2])
                         return '[[!inline pages="creation_year(1970)" quick feeds=no %s]]' % " ".join(extra)
                 if name.lower() == 'pagelist':
+                        return ''
                         args = args.split(":")[-1] # discard regex:
                         return '[[!map pages="%s"]]' % args
                 if name.lower() in ['navigation', 'navitree']:
+                        return ''
                         parent = self.page.page_name
                         if args_list[0] == 'siblings':
                                 parent, _ = parent.rsplit("/", 1)
@@ -337,6 +345,7 @@ class MarkdownFormatter(text_html.Formatter):
                         else:
                                 raise NotImplementedError("parameter %s to Navigation macro not implemented" % args_list[0])
                 if name.lower() == 'monthcalendar':
+                        return ''
                         extra = ''
                         if len(args_list) > 0:
                                 extra += ' pages="%s/*"' % args_list[0]
@@ -345,17 +354,21 @@ class MarkdownFormatter(text_html.Formatter):
                                 # XXX: consider this: http://ikiwiki.info/todo/Javascript_calendar/
                         return '[[!calendar type="month"%s]]' % extra
                 if name.lower() == 'anchor':
+                        return ''
                         return '<a name="%s"></a>' % args
                 if name.lower() == 'footnote':
+                        return ''
                         self.footnotes.append(args)
                         return '[^%d]' % len(self.footnotes)
                 if name.lower() == 'mailto':
+                        return ''
                         if '@' in args:
                                 if len(args_list) > 1:
                                         return '[%s](%s)' % args_list.reverse()
                                 else:
                                         return '[[%s]]' % args
                 if name.lower() == 'date' or name.lower() == 'datetime':
+                        return ''
                         if name.lower() == 'date':
                                 fmt = self.request.user.date_fmt or self.request.user._cfg.date_fmt
                         else:
@@ -384,10 +397,13 @@ class MarkdownFormatter(text_html.Formatter):
                                 dt = datetime.datetime.now()
                         args = dt.strftime(fmt)
                 if name.lower() == 'br':
+                        return ''
                         return "  \n"
                 if name.lower() == 'attachlist' or name.lower() == 'attachinfo':
+                        return ''
                         return '[[!inline pages="!page(%s/*) and glob(%s/*)" quick archive="yes" feeds="no"]]' % (self.page.page_name.replace(" ", "_"), self.page.page_name.replace(" ", "_"))
                 if name.lower() == 'fullsearch' or name.lower() == 'fullsearchcached':
+                        return ''
                         if not args:
                                 log("warning: not generating a search form")
                                 return ''
@@ -418,17 +434,20 @@ class MarkdownFormatter(text_html.Formatter):
                                         params.append(param)
                                 return '[[!inline pages="%s" quick feeds="no" archive="yes"]]' % " and ".join(params)
                 if name.lower() == 'include':
+                        return '[%s](!subst)' % args_list[0]
                         if len(args_list) > 1:
                                 log("warning: discarding arguments after the pagespec in inline: " + " ".join(args_list[1:]))
                         return '[[!inline pages="%s" quick="yes" raw="yes"]]' % args_list[0]
                 if name.lower() == 'recentchanges':
+                        return ''
                         return '[[!inline pages="internal(recentchanges/change_*) and !*/Discussion" template=recentchanges show=0]]'
                 if name.lower() in ['dictcolumns', 'randompage', 'advancedsearch', 'goto', 'gallery', 'searchinpagesandsort', 'icon']: # skip those
                         log("warning: skipping macro <<%s(%s)>>" % (name, args))
                         return ''
                 if not name.lower() in self.macro_subst:
                         #raise NotImplementedError("macro <<%s(%s)>> unknown in Ikiwiki" % (name, args))
-                        return "XXX: Unknown macro: <<%s(%s)>>" % (name, args)
+                        log("XXX: Unknown macro: <<%s(%s)>>" % (name, args))
+                        return ''
                 m = self.macro_subst.get(name.lower())
                 if m:
                         return "[[!%s %s]]" % (m, args if args else "")
