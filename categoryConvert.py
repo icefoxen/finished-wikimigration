@@ -4,7 +4,7 @@ import re
 import sys
 
 
-def help():
+def usage():
     print("Usage:")
     print("categoryConvert.py filename")
     sys.exit(1)
@@ -29,7 +29,7 @@ def main():
             # Change 'CategoryFoo' to 'foo'
             cat = cat[8:].lower()
             catStr += cat + ' '
-        print(catStr)
+        print(filename + " " + catStr)
         # Find the category section and snip it off
         # because we have no rindex()
         rfContents = [x.strip() for x in reversed(fContents)]
@@ -47,7 +47,7 @@ def main():
                 f.write(i)
 
     else:
-        help()
+        usage()
 
 
 if __name__ == '__main__':
