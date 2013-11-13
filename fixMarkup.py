@@ -36,7 +36,7 @@ def convertPara(para):
         # add the whitespace back.  Whew.
         def pythonNeedsBetterLambdas(x):
             start = firstNonWhitespaceIndex(para)
-            return (' ' * start) + convertPara(x[start:])
+            return x[:start] + convertPara(x[start:])
         lineses = para.split('\n')
         fixedlineses = map(pythonNeedsBetterLambdas, lineses)
         return '\n'.join(fixedlineses)
