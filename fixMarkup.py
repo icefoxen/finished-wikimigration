@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Grovels through a file and replaces **foo** with *foo*, and vice versa.
-# Sigh.
+# Painfully non-idempotent (though it should be its own inverse).
+# Also bulleted lists make life hard.
 
 import re
 import sys
@@ -19,7 +20,9 @@ def convertPara(para):
     global paracount
     paracount += 1
     #print("Converting paragraph {}".format(paracount))
-    if para[:2] == '* ':
+    if para == '':
+        return ''
+    elif para[:2] == '* ':
         # The para is a bulleted list; handle it specially.
         # We have to be careful to not munge nested lists.
         def pythonNeedsBetterLambdas(x):
@@ -43,7 +46,7 @@ def convertPara(para):
         while i < len(para):
             #print("Character {}".format(i))
             if para[i] == '*':
-                if para[i + 1] == '*':
+                if (i+1) < len(para) and para[i + 1] == '*':
                     accm += '*'
                     # Skip ahead one extra
                     i += 1
